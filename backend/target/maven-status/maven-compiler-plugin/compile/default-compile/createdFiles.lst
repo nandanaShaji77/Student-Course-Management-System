@@ -1,0 +1,9 @@
+com\example\studentcourse\controller\StudentController.class
+com\example\studentcourse\controller\CourseController.class
+com\example\studentcourse\controller\HealthController.class
+com\example\studentcourse\repository\CourseRepository.class
+com\example\studentcourse\exception\ResourceNotFoundException.class
+com\example\studentcourse\model\Course.class
+com\example\studentcourse\StudentCourseApplication.class
+com\example\studentcourse\repository\StudentRepository.class
+com\example\studentcourse\model\Student.class

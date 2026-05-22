@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Service 1: PostgreSQL Relational Database Container
+  postgres:
+    image: postgres:15-alpine
+    container_name: student-db
+    environment:
+      POSTGRES_DB: studentdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - student_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d studentdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Service 2: Spring Boot REST API Backend Container
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: student-backend
+    ports:
+      - "8081:8080"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=studentdb
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - student_net
+    restart: on-failure
+
+  # Service 3: Nginx Web Server / Gateway Proxy Frontend Container
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: student-frontend
+    ports:
+      - "8082:80"
+    depends_on:
+      - backend
+    networks:
+      - student_net
+    restart: always
+
+volumes:
+  # Persistent Docker Volume for PostgreSQL transactional safety
+  postgres_data:
+    driver: local
+
+networks:
+  # Isolated Bridge Network connecting the microservices ecosystem
+  student_net:
+    driver: bridge
