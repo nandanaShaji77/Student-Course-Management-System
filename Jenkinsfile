@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    tools {
+        // Tells Jenkins to inject your managed Maven path into the build environment
+        maven 'Maven3' 
+    }
+
     environment {
         // Keeps your setup modular and easy to change later
         DOCKER_HUB_CRED = 'docker-hub-credentials' 
