@@ -32,7 +32,7 @@ pipeline {
             steps {
                 echo 'Compiling and packaging Java Spring Boot backend...'
                 dir('backend') {
-                    bat "${MAVEN_HOME}/bin/mvn clean package -DskipTests"
+                    sh "${MAVEN_HOME}/bin/mvn clean package -DskipTests"
                 }
             }
         }
@@ -42,7 +42,7 @@ pipeline {
             steps {
                 echo 'Running unit test verifications with Maven...'
                 dir('backend') {
-                    bat "${MAVEN_HOME}/bin/mvn test"
+                    sh "${MAVEN_HOME}/bin/mvn test"
                 }
             }
         }
@@ -51,7 +51,7 @@ pipeline {
         stage('Docker Image Builds') {
             steps {
                 echo 'Building backend and frontend Docker containers...'
-                bat 'docker compose build'
+                sh 'docker compose build'
             }
         }
 
@@ -63,19 +63,19 @@ pipeline {
                                                  usernameVariable: 'DOCKER_USERNAME', 
                                                  passwordVariable: 'DOCKER_PASSWORD')]) {
                     // Authenticate CLI
-                    bat "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                    sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
                     
                     // Tag images for the organization namespace
-                    bat "docker tag student-backend:latest ${DOCKER_USERNAME}/student-backend:latest"
-                    bat "docker tag student-backend:latest ${DOCKER_USERNAME}/student-backend:${APP_VERSION}"
-                    bat "docker tag student-frontend:latest ${DOCKER_USERNAME}/student-frontend:latest"
-                    bat "docker tag student-frontend:latest ${DOCKER_USERNAME}/student-frontend:${APP_VERSION}"
+                    sh "docker tag student-backend:latest ${DOCKER_USERNAME}/student-backend:latest"
+                    sh "docker tag student-backend:latest ${DOCKER_USERNAME}/student-backend:${APP_VERSION}"
+                    sh "docker tag student-frontend:latest ${DOCKER_USERNAME}/student-frontend:latest"
+                    sh "docker tag student-frontend:latest ${DOCKER_USERNAME}/student-frontend:${APP_VERSION}"
                     
                     // Push to repository registry
-                    bat "docker push ${DOCKER_USERNAME}/student-backend:latest"
-                    bat "docker push ${DOCKER_USERNAME}/student-backend:${APP_VERSION}"
-                    bat "docker push ${DOCKER_USERNAME}/student-frontend:latest"
-                    bat "docker push ${DOCKER_USERNAME}/student-frontend:${APP_VERSION}"
+                    sh "docker push ${DOCKER_USERNAME}/student-backend:latest"
+                    sh "docker push ${DOCKER_USERNAME}/student-backend:${APP_VERSION}"
+                    sh "docker push ${DOCKER_USERNAME}/student-frontend:latest"
+                    sh "docker push ${DOCKER_USERNAME}/student-frontend:${APP_VERSION}"
                 }
             }
         }
@@ -85,8 +85,8 @@ pipeline {
             steps {
                 echo 'Launching Student Course Management System containers...'
                 // Restarts services gracefully with updated images
-                bat 'docker compose down'
-                bat 'docker compose up -d'
+                sh 'docker compose down'
+                sh 'docker compose up -d'
                 echo 'Deploy completed. Ecosystem accessible on port 80.'
             }
         }
